@@ -1,16 +1,21 @@
 var gRandCells = []
 var gBoard = []
 var gLevel = { size: 16, mines: 2 }
-var gGame = { isOn: false, shownCount: 0, markedBoard: 0, secPassed: 0 }
+var gGame = { isOn: false, shownCount: 0, markedBoard: 0, secPassed: 0, timerInterval : 0 }
 var gInterval
 var gSizeSqrt
 var mine = '💣'
 
+
 function onInit() {
+  gGame.secPassed = 0
+  gGame.isOn = true
   gSizeSqrt = Math.sqrt(gLevel.size)
   gBoard = buildBoard()
   addMines()
   setMinesNegsCount(gBoard)
+  var elModal = document.querySelector('.modal')
+  elModal.style.display = 'none'
   renderBoard(gBoard)
 }
 
@@ -56,30 +61,47 @@ function renderBoard(board) {
   var elTable = document.querySelector('.board')
   elTable.innerHTML = strHTML
   document.querySelector('.mines').innerText = `mines: ${gLevel.mines}`
-  document.querySelector('.game_time').innerText = `Time: 0`
+  document.querySelector('.game_time').innerText = `time: ${gGame.secPassed}`
+
+  
 }
 
 
 function onCellClicked(elCell, iIdx, jIdx) {
+  
+  if(!gGame.timerInterval) {
+    startTimer()
+  
+  }
   if (!gBoard[iIdx][jIdx].isShown) {
     gBoard[iIdx][jIdx].isShown = true
-
+    gGame.shownCount++
+    
+    
     if (gBoard[iIdx][jIdx].isMine === true) {
       showAllMines()
+      gameOver()
       //TODO add game over modal
     } else if (gBoard[iIdx][jIdx].minesAroundCount === 0 ) {
       for (var i =  iIdx - 1; i <= iIdx + 1; i++) {
         if (i < 0 || i >= gBoard.length) continue
         for (var j = jIdx - 1; j <= jIdx + 1; j++) {
           if (j < 0 || j >= gBoard[i].length) continue
-          if (i === gBoard[i] && j === gBoard[j]) continue
-          gBoard[i][j].isShown = true
+          if (i === iIdx && j === jIdx) continue
+          if(gBoard[i][j].isShown !== true) {
+            gBoard[i][j].isShown = true
+            gGame.shownCount++
+            
+          }
           
         }
       }
     }
   }
   renderBoard(gBoard)
+  if(gGame.shownCount + gLevel.mines === gLevel.size){
+    victory()
+  }
 }
 
 function showAllMines() {
@@ -149,13 +171,11 @@ function checkGameOver() {}
 
 function startTimer() {
   var start = Date.now()
-  gInterval = setInterval(() => {
-    var currTime = Date.now()
-    var delta = currTime - start
-    delta /= 1000
-    delta.toFixed(3)
-    document.querySelector('.game_time').innerText = `Time: ${delta}`
-  }, 100)
+  gGame.timerInterval = setInterval(() => {
+    gGame.secPassed++
+    renderBoard(gBoard)
+  }, 1000)
+
 }
 
 function getClassName(location) {
@@ -167,6 +187,26 @@ function renderCell(location, value) {
   const cellSelector = '.' + getClassName(location) // cell-i-j
   const elCell = document.querySelector(cellSelector)
   elCell.innerText = value
+}
+
+function victory() {
+  clearInterval(gGame.timerInterval)
+  gGame.timerInterval = 0
+  gGame.shownCount = 0
+  gGame.isOn = false
+  document.querySelector('.user-msg').innerText = 'YOU WIN'
+  var elModal = document.querySelector('.modal')
+  elModal.style.display = 'block'
+}
+
+function gameOver() {
+  clearInterval(gGame.timerInterval)
+  gGame.timerInterval = 0
+  gGame.shownCount = 0
+  gGame.isOn = false
+  document.querySelector('.user-msg').innerText = 'YOU LOST'
+  var elModal = document.querySelector('.modal')
+  elModal.style.display = 'block'
 }
 
 function onChangeDifficulty(elRadio) {

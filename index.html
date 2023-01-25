@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mine Sweeper</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body onload="onInit()">
+    <div class="main">
+      <h1>Mine Sweeper</h1>
+
+      <fieldset>
+        <legend>Select your Difficulty:</legend>
+        <input
+          type="radio"
+          onchange="onChangeDifficulty(this)"
+          id="easy"
+          name="drone"
+          value="16"
+          checked
+        />
+        <label for="huey">Easy(16)</label>
+        <input
+          type="radio"
+          onchange="onChangeDifficulty(this)"
+          id="medium"
+          name="drone"
+          value="64"
+        />
+        <label for="dewey">Medium(64)</label>
+        <input
+          type="radio"
+          onchange="onChangeDifficulty(this)"
+          id="hard"
+          name="drone"
+          value="144"
+        />
+        <label for="louie">Hard(144)</label>
+      </fieldset>
+      <div class="container">
+        <div class="info_bar">
+          <div class="game_time"></div>
+          <div class="mines"></div>
+        </div>
+
+        <table>
+          <tbody class="board"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="js/game.js"></script>
+    <script src="js/util.js"></script>
+  </body>
+</html>

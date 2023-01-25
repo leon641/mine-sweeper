@@ -37,43 +37,60 @@ function renderBoard(board) {
     strHTML += `<tr>`
     for (var j = 0; j < board[0].length; j++) {
       var cellClass = getClassName({ i: i, j: j }) + ' '
-      if (board[i][j].isMine) {
-        // RENDER MINE CELL
-        strHTML += `<td class="cell ${cellClass}" onClick="onCellClicked(this,${i},${j})">${getCellContent(
-          mine
-        )}</td>\n`
-      } else if (board[i][j].isMine === false) {
-        var cellValue =
-          board[i][j].minesAroundCount === 0 ? '' : board[i][j].minesAroundCount
-        // RENDER REGULAR CELL
-        strHTML += `<td class="cell ${cellClass}" onClick="onCellClicked(this,${i},${j})">${getCellContent(
-          cellValue
-        )}</td>\n`
+      if (gBoard[i][j].isShown) {
+        if (board[i][j].isMine) {
+          // RENDER MINE CELL
+          strHTML += `<td class="cell ${cellClass}" onClick="onCellClicked(this,${i},${j})">${mine}</td>\n`
+        } else if (board[i][j].isMine === false) {
+          var cellValue =
+            board[i][j].minesAroundCount === 0 ? '' : board[i][j].minesAroundCount
+          // RENDER REGULAR CELL
+          strHTML += `<td class="cell ${cellClass}" onClick="onCellClicked(this,${i},${j})">${cellValue}</td>\n`
+        } 
+      } else {
+        strHTML += `<td class="cover cell ${cellClass}" onClick="onCellClicked(this,${i},${j})"></td>\n`
       }
     }
     strHTML += `</tr>`
-    var elTable = document.querySelector('.board')
-    elTable.innerHTML = strHTML
-    document.querySelector('.mines').innerText = `mines: ${gLevel.mines}`
-    document.querySelector('.game_time').innerText = `Time: 0`
   }
+  var elTable = document.querySelector('.board')
+  elTable.innerHTML = strHTML
+  document.querySelector('.mines').innerText = `mines: ${gLevel.mines}`
+  document.querySelector('.game_time').innerText = `Time: 0`
 }
 
-function getCellContent(value) {
-  return `<div class="cover">
-          </div>
-          <div class="hide">${value}
-          </div>`
+
+function onCellClicked(elCell, iIdx, jIdx) {
+  if (!gBoard[iIdx][jIdx].isShown) {
+    gBoard[iIdx][jIdx].isShown = true
+
+    if (gBoard[iIdx][jIdx].isMine === true) {
+      showAllMines()
+      //TODO add game over modal
+    } else if (gBoard[iIdx][jIdx].minesAroundCount === 0 ) {
+      for (var i =  iIdx - 1; i <= iIdx + 1; i++) {
+        if (i < 0 || i >= gBoard.length) continue
+        for (var j = jIdx - 1; j <= jIdx + 1; j++) {
+          if (j < 0 || j >= gBoard[i].length) continue
+          if (i === gBoard[i] && j === gBoard[j]) continue
+          gBoard[i][j].isShown = true
+          
+        }
+      }
+    }
+  }
+  renderBoard(gBoard)
 }
 
-function onCellClicked(elCell, i, j) {
-  if (!gBoard[i][j].isShown) {
-    gBoard[i][j].isShown = true
-    elCell.children[0].classList.toggle('hide')
-    elCell.children[1].classList.toggle('hide')
+function showAllMines() {
+  for (var i = 0; i < gBoard.length; i++) {
+    for (var j = 0; j < gBoard.length; j++) {
+      if (gBoard[i][j].isMine === true) {
+        gBoard[i][j].isShown = true
+      }
+    }
   }
 
-  //  elCell.children[1].classList.toggle("visible")
 }
 
 function onCellMarked(elCell) {
